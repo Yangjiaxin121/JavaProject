@@ -4,10 +4,17 @@ import java.awt.Graphics;
 import java.awt.LayoutManager;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+
+
 
 //新建类ShootGame，加载图片
 public class ShootGame extends JPanel{
@@ -48,26 +55,84 @@ public class ShootGame extends JPanel{
 			e.printStackTrace();
 		}
 	}
-	public ShootGame() {
-		flyings = new FlyingObject[2];
-		flyings[0] = new Airplane();
-		flyings[1] = new Bee();
-		bullets = new Bullet[1];
-		bullets[0] = new Bullet(50,100);
-				
-	}
+//构造方法注视之后对象肯定不会被创建
+//	public ShootGame() {
+//		flyings = new FlyingObject[2];
+//		flyings[0] = new Airplane();
+//		flyings[1] = new Bee();
+//		bullets = new Bullet[1];
+//		bullets[0] = new Bullet(50,100);
+//				
+//	}
 
 	
+	//工厂模式都是产生对象的，创建敌人·对象过程都是随机的，有可能是敌人有可能是小蜜蜂
+	public static FlyingObject nextOne(){
+		Random r = new Random();
+		int type = r.nextInt(20);
+		if(type == 0) {
+			return new Bee();      //随机数为0返回蜜蜂对象
+		} else {
+			return new Airplane();     //随机数为1-19返回敌机对象
+		}
+		/*
+		 * 意思就是说，我们敌方飞机多，而小蜜蜂少
+		 * r.nextInt(20); 
+		 * 如果随机数是0，我让他创建小蜜蜂对象
+		 * 若果随机数是1～19，我让它创建敌人对象AirPlane();
+		 */
+	}
+	int flyEnterIndex = 0;//计算敌人入场的个数
+	public void enterAction() {
+		flyEnterIndex++;//10毫秒加1
+		if(flyEnterIndex%40==0) {    //400（40*10）
+			FlyingObject obj = nextOne(); //创建一个敌人的对象
+			flyings = Arrays.copyOf(flyings, flyings.length + 1);
+			flyings[flyings.length - 1] = obj;
+		}
+	}
+	//创建定时器的对象
+	private Timer timer;
+	private int interval = 10; //毫秒数
+	void action(){
+		timer = new Timer();
+		timer.schedule(new TimerTask() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				enterAction();
+				repaint();//重新画新的飞机
+			}
+		}, interval,interval);
+	}
+	
 	@Override
-	public void paintComponent(Graphics g) {
+	public void paint(Graphics g) {
 		// TODO Auto-generated method stub
 		g.drawImage(background, 0, 0, null);
 		paintHero(g);
+		FlyingObject(g);
+		paintBullet(g);
 	}
 	//编写方法，画英雄机
 	private void paintHero(Graphics g) {
 		// TODO Auto-generated method stub
-		g.drawImage(hero.getImage(), hero.x, hero.y, null);
+		g.drawImage(hero.image, hero.x, hero.y, null);
+	}
+	//画敌方战机
+	private void FlyingObject (Graphics g) {
+		for (int i = 0; i < flyings.length; i++) {
+			 FlyingObject f = flyings[i];
+			 g.drawImage(f.image, f.x, f.y, null);
+		}
+	}
+	//子弹
+	private void paintBullet(Graphics g) {
+		for (int i = 0; i < bullets.length; i++) {
+			Bullet b = bullets[i];
+			g.drawImage(b.image, b.x, b.y, null);
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -79,6 +144,7 @@ public class ShootGame extends JPanel{
 		frame.setAlwaysOnTop(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
+		game.action();
 		
 		
 	}

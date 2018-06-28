@@ -16,7 +16,7 @@ public class Airplane extends FlyingObject implements Enemy{
 		width = image.getWidth();
 		Random r = new Random();
 		x = r.nextInt(ShootGame.WIDTH - this.width);
-		y = -this.height;
+		y = 20;
 	}
 
 }
