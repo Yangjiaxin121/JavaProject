@@ -2,13 +2,14 @@ package cn.xust.www;
 
 import java.awt.image.BufferedImage;
 
-public class FlyingObject {
+public abstract class FlyingObject {
 	//定义属性 protected  由于这几个属性要被子类使用因此我们定义为protected
 	protected BufferedImage image;
 	protected int x;
 	protected int y;
 	protected int width;
 	protected int height;
+	public abstract void step();//有抽象方法的类是抽象类
 	public BufferedImage getImage() {
 		return image;
 	}

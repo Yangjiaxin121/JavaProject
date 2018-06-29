@@ -2,6 +2,7 @@ package cn.xust.www;
 
 import java.util.Random;
 
+
 public class Bee extends FlyingObject implements Award{
 	private int xspeed = 1;   //x坐标移动速度
 	private int yspeed = 2;   //y坐标移动速度
@@ -18,8 +19,20 @@ public class Bee extends FlyingObject implements Award{
 		width = image.getWidth();
 		Random r = new Random();
 		x = r.nextInt(ShootGame.WIDTH - this.width);
-		y = 200;
+		y = -this.height;
 		awardType = r.nextInt(2);
+	}
+	@Override
+	public void step() {
+		// TODO Auto-generated method stub
+		x += xspeed;
+		y += yspeed;
+		if (x > ShootGame.WIDTH - this.width) {
+			xspeed = -1;
+		}
+		if (x < 0) {
+			xspeed = 1;
+		}
 	}
 
 

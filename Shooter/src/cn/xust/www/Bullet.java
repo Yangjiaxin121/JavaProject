@@ -12,5 +12,10 @@ public class Bullet extends FlyingObject{
 		this.x = x;
 		this.y = y;
 	}
+	@Override
+	public void step() {
+		// TODO Auto-generated method stub
+		y -= speed;
+	}
 
 }

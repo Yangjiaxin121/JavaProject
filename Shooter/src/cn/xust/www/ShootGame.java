@@ -91,6 +91,32 @@ public class ShootGame extends JPanel{
 			flyings[flyings.length - 1] = obj;
 		}
 	}
+	private void stepActopn() {
+		// TODO Auto-generated method stub
+		hero.step();
+		//遍历敌人，也就是蜜蜂和敌方飞机
+		for (int i = 0; i < flyings.length; i++) {
+			flyings[i].step();
+		}
+		for (int i = 0; i < bullets.length; i++) {
+			bullets[i].step();
+		}
+	}
+	int shootIndex = 0;
+	private void shootAction() {
+		// TODO Auto-generated method stub
+		/*
+		 * 子弹入场
+		 * 10毫秒走一次
+		 */
+		shootIndex++;      //10毫秒增1
+		if (shootIndex%30 == 0) {    //300(30*10)
+			Bullet[] bs = hero.shoot();
+			bullets = Arrays.copyOf(bullets, bullets.length+bs.length);
+			System.arraycopy(bs, 0, bullets, bullets.length-bs.length, bs.length);	
+		}
+		
+	}
 	//创建定时器的对象
 	private Timer timer;
 	private int interval = 10; //毫秒数
@@ -101,9 +127,12 @@ public class ShootGame extends JPanel{
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				enterAction();
+				enterAction();//敌人和蜜蜂入场
+				stepActopn();//飞行物移动
+				shootAction();//英雄机发射子弹，子弹入场
 				repaint();//重新画新的飞机
 			}
+
 		}, interval,interval);
 	}
 	
