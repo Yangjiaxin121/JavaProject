@@ -7,6 +7,7 @@ import java.util.Random;
 
 public class Hero extends FlyingObject{
 	private int life;       //生命值
+	private int score;      //分数值
 	private int doubleFire;   //火力值
 	private BufferedImage[] images;     //图片数组
 	private int index;      //控制切换的频率
@@ -29,7 +30,26 @@ public class Hero extends FlyingObject{
 		 */
 		index = 0;
 	}
+	public int getLife() {
+		return life;
+	}
+	public void setLife(int life) {
+		this.life = life;
+	}
+	public int getScore() {
+		return score;
+	}
+	public void setScore(int score) {
+		this.score = score;
+	}
+	public void addLife() {
+		life++;//命加一
+	}
 
+	public void addDoubleFire() {
+		doubleFire += 40;
+	}
+	
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
@@ -70,4 +90,10 @@ public class Hero extends FlyingObject{
 	 * 子弹的x是英雄级的x+3/4英雄级的宽度
 	 * 
 	 */
+
+	public void movedTo(int x, int y) {
+		// TODO Auto-generated method stub
+		setX(x-width/2);
+		setY(y-height/2);
+	}
 }

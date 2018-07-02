@@ -22,6 +22,8 @@ public class Airplane extends FlyingObject implements Enemy{
 	public void step() {
 		// TODO Auto-generated method stub
 		y += speed;
+		
+		
 	}
 
 }
