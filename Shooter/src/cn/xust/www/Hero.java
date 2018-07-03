@@ -30,18 +30,20 @@ public class Hero extends FlyingObject{
 		 */
 		index = 0;
 	}
+	//获取生命值
 	public int getLife() {
 		return life;
 	}
 	public void setLife(int life) {
 		this.life = life;
 	}
-	public int getScore() {
-		return score;
-	}
-	public void setScore(int score) {
-		this.score = score;
-	}
+//	//获取分数
+//	public int getScore() {
+//		return score;
+//	}
+//	public void setScore(int score) {
+//		this.score = score;
+//	}
 	public void addLife() {
 		life++;//命加一
 	}
@@ -96,4 +98,41 @@ public class Hero extends FlyingObject{
 		setX(x-width/2);
 		setY(y-height/2);
 	}
+	/**
+	 * 让敌方飞机攻击英雄机
+	 */
+	public boolean hit(FlyingObject other) {
+		int x1 = other.x - this.width/2;
+		int x2 = other.x  + other.width + this.width/2;
+		int y1 = other.y - this.height/2;
+		int y2 = other.y + other.height + this.height/2;
+		
+		//英雄级的中心坐标:
+		int hx = this.x + this.width/2;
+		int hy = this.y + this.height/2;
+		return hx>x1 && hx<x2 && hy>y1 && hy<y2;
+		/*
+		 * 默认英雄级和敌人撞上了
+		 * 英雄机减掉生命值，火力值归零
+		 * 敌人消失
+		 */
+	}
+	/*
+	 * 生命值减一
+	 */
+	public void subtractLife() {
+		life--;
+	}
+	/*
+	 * 设置火力值
+	 */
+	public void setDoubleFire(int doubleFire) {
+		this.doubleFire = doubleFire;//将传过来的火力值传给英雄机的火力值
+	}
+	/**
+	 * 英雄机和敌人碰撞也是定时发生的
+	 * checkGameOverAction()//检查游戏是否结束
+	 */
+	
+
 }

@@ -1,5 +1,7 @@
 package cn.xust.www;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -12,8 +14,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
+import javax.print.attribute.standard.PrinterState;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+
 
 
 
@@ -38,6 +43,19 @@ public class ShootGame extends JPanel{
 	public static BufferedImage bullet;
 	public static BufferedImage hero0;
 	public static BufferedImage hero1;
+
+	/*
+	 * 游戏分为四种状态，分为start、running、 pause、Game_over，表示游戏开始状态，运行状态，暂停状态
+	 * 结束状态
+	 * 		鼠标点击事件即就是我们的游戏开始状态start
+	 * 		
+	 */
+	public static final int START = 0;//开始
+	public static final int RUNNING = 1;//运行
+	public static final int PAUSE = 2;//暂停
+	public static final int GAME_OVER = 3;//结束状态
+	
+	private int state = 0; //记录当前状态，初始为启动状态
 
 	
 	static {
@@ -158,6 +176,7 @@ public class ShootGame extends JPanel{
 	/*
 	 * 一个子弹与所有敌人相碰撞
 	 */
+	int score = 0;
 	public void bang(Bullet b) {
 		int index = -1;  //被撞敌人的下标不能为0，如果为0默认第一个被撞
 		for (int i = 0; i < flyings.length; i++) {//遍历所有敌人
@@ -170,7 +189,7 @@ public class ShootGame extends JPanel{
 		/*
 		 * 检查子弹与所有敌人相撞
 		 */
-		int score = 0;
+	
 		if (index != -1) {//代表有撞上的
 			//获取被撞敌人的对象
 			FlyingObject one = flyings[index];
@@ -203,15 +222,44 @@ public class ShootGame extends JPanel{
 				 * 4:消失意味着对象不存在
 				 * 	将被撞的敌人对象从数组中删除flyings
 				 */
-				FlyingObject f = flyings[index];
-				flyings[index] = flyings[flyings.length-1];
-				flyings[flyings.length-1] = f;
-				//缩容（删除最后一个元素，即就是被撞的敌人对象）
+				
 			}
+			FlyingObject f = flyings[index];
+			flyings[index] = flyings[flyings.length-1];
+			flyings[flyings.length-1] = f;
+			//缩容（删除最后一个元素，即就是被撞的敌人对象）
+			flyings = Arrays.copyOf(flyings, flyings.length-1);
 		}
 		
 	}
 	
+	public void checkGameOverAction() {
+		// TODO Auto-generated method stub
+		if (isGameOver()) {//游戏结束
+			//什么时候游戏结束，英雄级的命数小于等于0
+			//英雄级为1，蜜蜂和敌机同时碰撞英雄机，英雄机命数为-1
+			//游戏结束，游戏的开始，游戏的运行，暂停
+			state = GAME_OVER;
+			//score = 0;
+		}
+	}
+	private boolean isGameOver() {
+		// TODO Auto-generated method stub
+		//一个英雄机和所有敌人碰撞
+		for (int i = 0; i < flyings.length; i++) {//遍历所有敌人
+			FlyingObject f = flyings[i];
+			if (hero.hit(f)) {//撞上了
+				hero.subtractLife();
+				hero.setDoubleFire(0);
+				//将被撞敌人于数组对后一个元素交换
+				FlyingObject t = flyings[i];
+				flyings[i] = flyings[flyings.length-1];
+				flyings[flyings.length-1] = t;
+				flyings = Arrays.copyOf(flyings, flyings.length-1);
+			}
+		}
+		return hero.getLife() <= 0;//英雄级命数小于1等于0即游戏结束
+	}
 	//创建定时器的对象
 	private Timer timer;
 	private int interval = 10; //毫秒数
@@ -221,7 +269,18 @@ public class ShootGame extends JPanel{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// TODO Auto-generated method stub
-				super.mouseClicked(e);
+				switch (state) {//根据当前状态操作
+				case START:  //启动状态
+					state = RUNNING;
+					break;
+				
+				case GAME_OVER:
+					state = START;        //游戏变为启动状态
+					break;
+//				case RUNNING:
+//					state = START;
+//					break;
+				}
 			}
 
 			@Override
@@ -264,11 +323,13 @@ public class ShootGame extends JPanel{
 			public void mouseMoved(MouseEvent e) {
 				// TODO Auto-generated method stub
 				super.mouseMoved(e);
-				//获取鼠标的坐标
-				int x = e.getX();
-				int y = e.getY();
-				hero.movedTo(x,y);
-			
+				if (state == RUNNING) {
+					//获取鼠标的坐标
+					int x = e.getX();
+					int y = e.getY();
+					hero.movedTo(x,y);
+				}
+
 			}
 			
 		};
@@ -313,17 +374,17 @@ public class ShootGame extends JPanel{
 		timer.schedule(new TimerTask() {
 			
 			@Override
-			public void run() {
+			public void run() {//运行时
 				// TODO Auto-generated method stub
-				enterAction();//敌人和蜜蜂入场
-				stepActopn();//飞行物移动
-				shootAction();//英雄机发射子弹，子弹入场
-				bangAction();
+				if (state == RUNNING) {
+					enterAction();//敌人和蜜蜂入场
+					stepActopn();//飞行物移动
+					shootAction();//英雄机发射子弹，子弹入场
+					bangAction();
+					checkGameOverAction();
+				}
 				repaint();//重新画新的飞机
 			}
-
-			
-
 		}, interval,interval);
 	}
 	
@@ -334,13 +395,36 @@ public class ShootGame extends JPanel{
 		paintHero(g);
 		FlyingObject(g);
 		paintBullet(g);
-		paintScore(g);
+		paintScore(g);//画分和画命
+		PrinterState(g);
+	}
+	
+	public void PrinterState(Graphics g) {
+		// TODO Auto-generated method stub
+		//根据当前的不同状态画不同的图
+		switch (state) {
+		case START:
+			g.drawImage(start, 0, 0, null);
+			break;
+			
+		case PAUSE:
+			g.drawImage(pause, 0, 0, null);
+			break;
+			
+		case GAME_OVER:
+			g.drawImage(gameover, 0, 0, null);
+			break;
+	
+		}
 	}
 	//画分数和命
 	private void paintScore(Graphics g) {
 		// TODO Auto-generated method stub
+		//改变分数的样式（颜色和字体）
 		//g.drawImage("分数:"+ score, 10, 25, null);
-		g.drawString("Score:"+hero.getScore(), 10, 25);
+		g.setColor(Color.RED);
+		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+		g.drawString("Score:"+score, 10, 25);
 		g.drawString("Life:"+hero.getLife(), 10, 45);
 		
 	}

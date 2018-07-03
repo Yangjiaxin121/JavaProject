@@ -7,7 +7,7 @@ public class Airplane extends FlyingObject implements Enemy{
 	@Override
 	public int getScore() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 5;
 	}
 	public Airplane() {
 		// TODO Auto-generated constructor stub
@@ -23,7 +23,6 @@ public class Airplane extends FlyingObject implements Enemy{
 		// TODO Auto-generated method stub
 		y += speed;
 		
-		
 	}
-
+	
 }
