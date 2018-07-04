@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 
 
 
+
 //新建类ShootGame，加载图片
 public class ShootGame extends JPanel{
 	public static final int WIDTH = 400;
@@ -43,6 +44,8 @@ public class ShootGame extends JPanel{
 	public static BufferedImage bullet;
 	public static BufferedImage hero0;
 	public static BufferedImage hero1;
+	public static BufferedImage bigplane;
+	public static BufferedImage hero_ember0;
 
 	/*
 	 * 游戏分为四种状态，分为start、running、 pause、Game_over，表示游戏开始状态，运行状态，暂停状态
@@ -69,6 +72,7 @@ public class ShootGame extends JPanel{
 			bullet = ImageIO.read(ShootGame.class.getResource("bullet.png"));
 			hero0 = ImageIO.read(ShootGame.class.getResource("hero0.png"));
 			hero1 = ImageIO.read(ShootGame.class.getResource("hero1.png"));
+			bigplane = ImageIO.read(ShootGame.class.getResource("bigplane.png"));
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -240,7 +244,7 @@ public class ShootGame extends JPanel{
 			//英雄级为1，蜜蜂和敌机同时碰撞英雄机，英雄机命数为-1
 			//游戏结束，游戏的开始，游戏的运行，暂停
 			state = GAME_OVER;
-			//score = 0;
+			
 		}
 	}
 	private boolean isGameOver() {
@@ -275,6 +279,10 @@ public class ShootGame extends JPanel{
 					break;
 				
 				case GAME_OVER:
+					score = 0;
+					hero = new Hero();
+					flyings = new FlyingObject[0];
+					bullets = new Bullet[0];
 					state = START;        //游戏变为启动状态
 					break;
 //				case RUNNING:
@@ -298,13 +306,21 @@ public class ShootGame extends JPanel{
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				// TODO Auto-generated method stub
-				super.mouseEntered(e);
+				//鼠标进入事件，从停滞状态变为运行状态
+				if (state == PAUSE) {
+					state = RUNNING;
+
+				}
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
 				// TODO Auto-generated method stub
-				super.mouseExited(e);
+				//鼠标离开事件，从运行状态变为停滞状态
+				if (state == RUNNING) {
+					state = PAUSE;
+				}
+			
 			}
 
 			@Override

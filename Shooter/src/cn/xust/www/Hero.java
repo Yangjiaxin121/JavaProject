@@ -12,6 +12,8 @@ public class Hero extends FlyingObject{
 	private BufferedImage[] images;     //图片数组
 	private int index;      //控制切换的频率
 	
+	private BufferedImage[] images2;
+	
 	public Hero() {
 		// TODO Auto-generated constructor stub
 		image = ShootGame.hero0;
@@ -23,6 +25,7 @@ public class Hero extends FlyingObject{
 		doubleFire = 0;
 		//就是我们的英雄机是在相互切换所以我定义了一个数组来存放它。
 		images = new BufferedImage[] {ShootGame.hero0,ShootGame.hero1};
+		images2 = new BufferedImage[] {};
 		/*
 		 * 两种放手定义数组，静态初始化   int[] arr = {1,2,3};
 		 * 				动态初始化     int[] arr = new int[3];

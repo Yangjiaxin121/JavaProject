@@ -11,7 +11,13 @@ public class Airplane extends FlyingObject implements Enemy{
 	}
 	public Airplane() {
 		// TODO Auto-generated constructor stub
-		image = ShootGame.airplane;
+		Random a = new Random();
+		int b = a.nextInt(10);
+		if (b>7) {
+			image = ShootGame.bigplane;
+		}else {
+			image = ShootGame.airplane;
+		}
 		height = image.getHeight();        //对未来也充满了憧憬
 		width = image.getWidth();
 		Random r = new Random();
