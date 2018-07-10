@@ -14,9 +14,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
-import javax.print.attribute.standard.PrinterState;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import com.mysql.jdbc.Buffer;
+
+import dao.DAO;
 
 
 
@@ -31,7 +34,8 @@ public class ShootGame extends JPanel{
 	private Hero hero = new Hero();//创建一个英雄机
 	private FlyingObject[] flyings = {};//敌人和蜜蜂
 	private Bullet[] bullets = {};//子弹
-	
+	private Ember[] embers = {}; // 灰烬	
+
 
 
 	//
@@ -44,8 +48,15 @@ public class ShootGame extends JPanel{
 	public static BufferedImage bullet;
 	public static BufferedImage hero0;
 	public static BufferedImage hero1;
-	public static BufferedImage bigplane;
-	public static BufferedImage hero_ember0;
+	//public static BufferedImage hero_ember0;
+	
+	public static BufferedImage[] airplaneEmber=new BufferedImage[4];
+	public static BufferedImage[] beeEmber=new BufferedImage[4];;
+	public static BufferedImage[] heroEmber=new BufferedImage[4];;
+	public static BufferedImage bigPlane;
+	public static BufferedImage[] bigPlaneEmber=new BufferedImage[4];
+	public static BufferedImage boss;
+	public static BufferedImage[] bossEmber = new BufferedImage[4];
 
 	/*
 	 * 游戏分为四种状态，分为start、running、 pause、Game_over，表示游戏开始状态，运行状态，暂停状态
@@ -72,7 +83,21 @@ public class ShootGame extends JPanel{
 			bullet = ImageIO.read(ShootGame.class.getResource("bullet.png"));
 			hero0 = ImageIO.read(ShootGame.class.getResource("hero0.png"));
 			hero1 = ImageIO.read(ShootGame.class.getResource("hero1.png"));
-			bigplane = ImageIO.read(ShootGame.class.getResource("bigplane.png"));
+			bigPlane = ImageIO.read(ShootGame.class.getResource("bigplane.png"));			
+			for(int i=0; i<4; i++){
+				beeEmber[i] = ImageIO.read(
+						ShootGame.class.getResource("bee_ember"+i+".png"));
+				airplaneEmber[i] = ImageIO.read(
+						ShootGame.class.getResource("airplane_ember"+i+".png"));
+				bigPlaneEmber[i] = ImageIO.read(
+						ShootGame.class.getResource("bigplane_ember"+i+".png"));
+				heroEmber[i] = ImageIO.read(
+						ShootGame.class.getResource("hero_ember"+i+".png"));
+				bossEmber[i] = ImageIO.read(
+						ShootGame.class.getResource("bossplane_ember"+i+".png"));
+			}
+			boss = ImageIO.read(ShootGame.class.getResource("bossplane.png"));
+			
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -89,15 +114,21 @@ public class ShootGame extends JPanel{
 //				
 //	}
 
-	
+	static int x=2;
 	//工厂模式都是产生对象的，创建敌人·对象过程都是随机的，有可能是敌人有可能是小蜜蜂
 	public static FlyingObject nextOne(){
-		Random r = new Random();
-		int type = r.nextInt(20);
-		if(type == 0) {
-			return new Bee();      //随机数为0返回蜜蜂对象
-		} else {
-			return new Airplane();     //随机数为1-19返回敌机对象
+		Random random = new Random();
+		int type = random.nextInt(20); // [0,4)
+		if (x==level) {
+			x+=1;
+			return new Boss();
+		}
+		if (type==0) {
+			return new Bee();
+		}else if(type<=2){
+			return new BigPlane();
+		}else{
+			return new Airplane();
 		}
 		/*
 		 * 意思就是说，我们敌方飞机多，而小蜜蜂少
@@ -115,7 +146,7 @@ public class ShootGame extends JPanel{
 			flyings[flyings.length - 1] = obj;
 		}
 	}
-	private void stepActopn() {
+	private void stepAction() {
 		// TODO Auto-generated method stub
 		hero.step();
 		//遍历敌人，也就是蜜蜂和敌方飞机
@@ -141,6 +172,20 @@ public class ShootGame extends JPanel{
 		}
 		
 	}
+//	private void shootAction2() {
+//		// TODO Auto-generated method stub
+//		/*
+//		 * 子弹入场
+//		 * 10毫秒走一次
+//		 */
+//		shootIndex++;      //10毫秒增1
+//		if (shootIndex%30 == 0) {    //300(30*10)
+//			Bullet[] bs = hero.shoot();
+//			bullets = Arrays.copyOf(bullets, bullets.length+bs.length);
+//			System.arraycopy(bs, 0, bullets, bullets.length-bs.length, bs.length);	
+//		}
+//		
+//	}
 	/**
 	 * 检测子弹与敌人碰撞
 	 */
@@ -180,12 +225,13 @@ public class ShootGame extends JPanel{
 	/*
 	 * 一个子弹与所有敌人相碰撞
 	 */
-	int score = 0;
+	static int score = 0;
+	static int level = 1;
 	public void bang(Bullet b) {
 		int index = -1;  //被撞敌人的下标不能为0，如果为0默认第一个被撞
 		for (int i = 0; i < flyings.length; i++) {//遍历所有敌人
 			FlyingObject f = flyings[i];//获取每一个敌人
-			if (f.shootBy(b)) {//
+			if (f.shootBy(b)) {
 					index = i;//记录被准过敌人的下标
 					break;//其余敌人不再比较			
 			}	
@@ -201,8 +247,17 @@ public class ShootGame extends JPanel{
 			//若果被撞对象是敌人
 			if (one instanceof Enemy) {
 				Enemy e = (Enemy)one;//将被撞对象强转为敌人累计加分
+				
 				//因为分数要画在页面上
 				score += e.getScore();
+				if (score > level*1000) {
+					Airplane.speed +=1;
+					BigPlane.speed +=1;
+					level += 1;
+//					Airplane.life++;
+//					BigPlane.life++;
+				}
+				
 			}
 			//如果被撞对象是
 			if (one instanceof Award) {//若果被撞对象是奖励类型
@@ -228,11 +283,17 @@ public class ShootGame extends JPanel{
 				 */
 				
 			}
+		
+			
 			FlyingObject f = flyings[index];
 			flyings[index] = flyings[flyings.length-1];
-			flyings[flyings.length-1] = f;
+			flyings[flyings.length-1] = f;	
 			//缩容（删除最后一个元素，即就是被撞的敌人对象）
 			flyings = Arrays.copyOf(flyings, flyings.length-1);
+			
+			Ember ember = new Ember(one);
+			embers = Arrays.copyOf(embers, embers.length+1);
+			embers[embers.length-1]=ember;
 		}
 		
 	}
@@ -260,10 +321,28 @@ public class ShootGame extends JPanel{
 				flyings[i] = flyings[flyings.length-1];
 				flyings[flyings.length-1] = t;
 				flyings = Arrays.copyOf(flyings, flyings.length-1);
+				
+				Ember ember = new Ember(hero);
+				embers = Arrays.copyOf(embers, embers.length+1);
+				embers[embers.length-1]=ember;
 			}
 		}
+		//System.out.println(hero.getLife());
 		return hero.getLife() <= 0;//英雄级命数小于1等于0即游戏结束
 	}
+	
+	private void emberAction() {
+		Ember[] live = new Ember[embers.length];
+		int index = 0;
+		for (int i = 0; i < embers.length; i++) {
+			Ember ember = embers[i];
+			if(! ember.burnDown()){
+				live[index++]=ember;
+			}
+		}
+		embers = Arrays.copyOf(live, index);
+	}
+	
 	//创建定时器的对象
 	private Timer timer;
 	private int interval = 10; //毫秒数
@@ -279,11 +358,17 @@ public class ShootGame extends JPanel{
 					break;
 				
 				case GAME_OVER:
+					DAO dao = new DAO();
+					dao.save(score);
 					score = 0;
 					hero = new Hero();
 					flyings = new FlyingObject[0];
 					bullets = new Bullet[0];
 					state = START;        //游戏变为启动状态
+					level = 1;
+					Airplane.speed = 2;
+					BigPlane.speed = 1;
+					Boss.speed = 1;
 					break;
 //				case RUNNING:
 //					state = START;
@@ -393,11 +478,13 @@ public class ShootGame extends JPanel{
 			public void run() {//运行时
 				// TODO Auto-generated method stub
 				if (state == RUNNING) {
+					emberAction();
 					enterAction();//敌人和蜜蜂入场
-					stepActopn();//飞行物移动
+					stepAction();//飞行物移动
 					shootAction();//英雄机发射子弹，子弹入场
 					bangAction();
 					checkGameOverAction();
+					
 				}
 				repaint();//重新画新的飞机
 			}
@@ -413,6 +500,7 @@ public class ShootGame extends JPanel{
 		paintBullet(g);
 		paintScore(g);//画分和画命
 		PrinterState(g);
+		paintEmber(g);
 	}
 	
 	public void PrinterState(Graphics g) {
@@ -433,6 +521,13 @@ public class ShootGame extends JPanel{
 	
 		}
 	}
+	
+	public void paintEmber(Graphics g) {
+		for (int i = 0; i < embers.length; i++) {
+			Ember e = embers[i];
+			g.drawImage(e.getImage(), e.getX(), e.getY(), null);
+		}
+	}
 	//画分数和命
 	private void paintScore(Graphics g) {
 		// TODO Auto-generated method stub
@@ -442,6 +537,9 @@ public class ShootGame extends JPanel{
 		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 		g.drawString("Score:"+score, 10, 25);
 		g.drawString("Life:"+hero.getLife(), 10, 45);
+		g.drawString("Level:"+level, 10, 65);
+		DAO dao = new DAO();
+		g.drawString("Max:"+dao.max(), 10, 85);
 		
 	}
 	//编写方法，画英雄机
@@ -460,7 +558,10 @@ public class ShootGame extends JPanel{
 	private void paintBullet(Graphics g) {
 		for (int i = 0; i < bullets.length; i++) {
 			Bullet b = bullets[i];
-			g.drawImage(b.image, b.x, b.y, null);
+			if(! b.isBomb())
+				g.drawImage(b.getImage(), b.getX() - b.getWidth() / 2, b.getY(),
+					null);
+		
 		}
 	}
 	
@@ -475,6 +576,7 @@ public class ShootGame extends JPanel{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		game.action();
+		AudioPlayer.MusicMap();
 		
 		
 	}

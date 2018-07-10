@@ -4,6 +4,7 @@ import java.util.Random;
 
 public class Bullet extends FlyingObject{
 	private int speed = 3; 
+	private boolean bomb;
 	public Bullet(int x,int y) {
 		// TODO Auto-generated constructor stub
 		image = ShootGame.bullet;
@@ -12,6 +13,14 @@ public class Bullet extends FlyingObject{
 		this.x = x;
 		this.y = y;
 	}
+	public void setBomb(boolean bomb) {
+		this.bomb = bomb;
+	}
+	
+	public boolean isBomb() {
+		return bomb;
+	}
+
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub

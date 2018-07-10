@@ -17,6 +17,7 @@ public class Hero extends FlyingObject{
 	public Hero() {
 		// TODO Auto-generated constructor stub
 		image = ShootGame.hero0;
+		this.ember = ShootGame.heroEmber;
 		height = image.getHeight();        //对未来也充满了憧憬
 		width = image.getWidth();
 		x = 150;
@@ -66,15 +67,30 @@ public class Hero extends FlyingObject{
 	 */
 	public Bullet[] shoot() {
 		int xstep = this.width/4;
-		int ystep = 40;
+		int ystep = 20;
 		//火力值为0单发，火力值大于0双发
-		if (doubleFire > 0) {
+		if (doubleFire > 0 && doubleFire <= 40) {
 			Bullet[] bullets = new Bullet[2];
 			bullets[0] = new Bullet(this.x + 1*xstep, this.y - ystep);
 			bullets[1] = new Bullet(this.x + 3*xstep, this.y - ystep);
 //			doubleFire -= 2;
 			return bullets;
-		} else {
+		} else if (doubleFire > 40 && doubleFire <= 80) {
+			Bullet[] bullets = new Bullet[3];
+			bullets[0] = new Bullet(this.x + 0*xstep, this.y - ystep);
+			bullets[1] = new Bullet(this.x + 2*xstep, this.y - ystep);
+			bullets[2] = new Bullet(this.x + 4*xstep, this.y - ystep);
+//			doubleFire -= 2;
+			return bullets;
+		}else if (doubleFire > 80 ) {
+			Bullet[] bullets = new Bullet[4];
+			bullets[0] = new Bullet(this.x + 0*xstep, this.y - ystep);
+			bullets[1] = new Bullet(this.x + 1*xstep, this.y - ystep);
+			bullets[2] = new Bullet(this.x + 3*xstep, this.y - ystep);
+			bullets[3] = new Bullet(this.x + 4*xstep, this.y - ystep);
+//			doubleFire -= 2;
+			return bullets;
+		}else {
 			Bullet[] bullets = new Bullet[1];
 			bullets[0] = new Bullet(this.x + 2*xstep, this.y - ystep);
 			return bullets;

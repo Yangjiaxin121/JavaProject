@@ -15,6 +15,7 @@ public class Bee extends FlyingObject implements Award{
 	public Bee() {
 		// TODO Auto-generated constructor stub
 		image = ShootGame.bee;
+		this.ember = ShootGame.beeEmber;
 		height = image.getHeight();        //对未来也充满了憧憬
 		width = image.getWidth();
 		Random r = new Random();
